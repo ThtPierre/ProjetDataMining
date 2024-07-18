@@ -16,6 +16,7 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 from mpl_toolkits.mplot3d import Axes3D
 from fonction import *
 
+
 def detect_delimiter(file):
     sample = file.read(1024).decode('utf-8')
     file.seek(0)
@@ -181,7 +182,28 @@ else:
                 logisticreg(X, y)
 
             elif algo_choice == "Random Forest Classifier":
-                forest(X, y)
-
+                forest(X,y)
             elif algo_choice == "K-Nearest Neighbors":
                 knn(X, y)
+
+
+    st.write("Choose the method between Kmeans 3D and DBSCAN 3D :")
+    method4 = st.selectbox("Please Select", ["Kmeans3D", "DBSCAN3D"], key="method4")
+ 
+    if method4 == "Kmeans3D":
+        col1 = st.selectbox("Select X axis", numeric_df.columns, key="kmeans3D x")
+        col2 = st.selectbox("Select Y axis", numeric_df.columns, key="kmeans3D y")
+        col3 = st.selectbox("Select Z axis", numeric_df.columns, key="kmeans3D z")
+        n_clusters = st.number_input("Number of clusters:", min_value=2, max_value=20, value=3, key="n_clusters")
+        kmeans_clustering_3d(numeric_df, col1, col2, col3, n_clusters)
+        #calculate_kmeans_stats(numeric_df, centroids2)
+       
+ 
+    elif method4 == "DBSCAN3D":
+        col1 = st.selectbox("Select X axis", numeric_df.columns, key="dbscan3D x")
+        col2 = st.selectbox("Select Y axis", numeric_df.columns, key="dbscan3D y")
+        col3 = st.selectbox("Select Z axis", numeric_df.columns, key="dbscan3D z")
+        eps = st.slider('EPS (epsilon)', min_value=0.1, max_value=1.0, value=0.5, step=0.1, key="eps")
+        min_samples = st.slider('Min Samples', min_value=2, max_value=20, value=5, key="min_samples")
+        dbscan_clustering_3d(numeric_df, col1, col2, col3, eps, min_samples)
+        #calculate_dbscan_stats(numeric_df, col1, col2, col3)

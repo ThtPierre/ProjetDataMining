@@ -199,21 +199,124 @@ def dbscan_clustering(data, col1, col2, eps, min_samples):
     plt.figure(figsize=(10, 8))
     unique_clusters = np.unique(labels[labels != -1])
     
-    # Scatter plot pour chaque cluster
     for cluster in unique_clusters:
         cluster_data = data[data['cluster'] == cluster]
         plt.scatter(cluster_data[col1], cluster_data[col2], label=f'Cluster {cluster}')
     
-    # Marquer le bruit (cluster avec étiquette -1)
     noise_data = data[data['cluster'] == -1]
     plt.scatter(noise_data[col1], noise_data[col2], color='gray', marker='x', label='Noise')
     
-    # Ajouter des légendes et un titre
     plt.xlabel(col1)
     plt.ylabel(col2)
     plt.title('DBSCAN Clustering')
     plt.legend()
     plt.grid(True)
     
-    # Afficher le plot dans Streamlit
-    st.pyplot(plt)
+    t.pyplot(plt)
+
+    def calculate_kmeans_stats(data, centroids):
+        cluster_stats = pd.DataFrame(columns=['Cluster', 'Number of Points', 'Center'])
+        unique_clusters = np.unique(data['cluster'])
+   
+    for cluster in unique_clusters:
+        cluster_data = data[data['cluster'] == cluster]
+        center = centroids[cluster]
+        num_points = cluster_data.shape[0]
+        new_row = pd.DataFrame({
+            'Cluster': [cluster + 1],
+            'Number of Points': [num_points],
+            'Center': [center]
+        })
+        cluster_stats = pd.concat([cluster_stats, new_row], ignore_index=True)
+   
+    st.subheader('Cluster Statistics (K-Means)')
+    st.write(cluster_stats)
+ 
+ 
+def calculate_dbscan_stats(data, col1, col2):
+    cluster_stats = pd.DataFrame(columns=['Cluster', 'Number of Points', 'Density'])
+    unique_clusters, counts = np.unique(data['cluster'], return_counts=True)
+   
+    for cluster, count in zip(unique_clusters, counts):
+        if cluster == -1:
+            new_row = pd.DataFrame({
+                'Cluster': ['Noise (DBSCAN)'],
+                'Number of Points': [count],
+                'Density': [np.nan]
+            })
+        else:
+            cluster_data = data[data['cluster'] == cluster]
+            num_points = count
+            area = (cluster_data[col1].max() - cluster_data[col1].min()) * (cluster_data[col2].max() - cluster_data[col2].min())
+            density = num_points / area if area > 0 else np.nan
+            new_row = pd.DataFrame({
+                'Cluster': [cluster],
+                'Number of Points': [num_points],
+                'Density': [density]
+            })
+        cluster_stats = pd.concat([cluster_stats, new_row], ignore_index=True)
+   
+    st.subheader('Cluster Statistics (DBSCAN)')
+    st.write(cluster_stats)
+ 
+ 
+def dbscan_clustering_3d(data, col1, col2, col3, eps, min_samples):
+    X = data[[col1, col2, col3]]
+   
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+   
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+    labels = dbscan.fit_predict(X_scaled)
+   
+    data['cluster'] = labels
+ 
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+   
+    unique_clusters = np.unique(labels)
+    for cluster in unique_clusters:
+        if cluster == -1:
+            cluster_label = 'Noise'
+        else:
+            cluster_label = f'Cluster {cluster + 1}'
+       
+        cluster_data = data[data['cluster'] == cluster]
+        ax.scatter(cluster_data[col1], cluster_data[col2], cluster_data[col3], label=cluster_label, s=50)
+   
+    ax.set_xlabel(col1)
+    ax.set_ylabel(col2)
+    ax.set_zlabel(col3)
+    ax.set_title('DBSCAN Clustering')
+    ax.legend()
+    ax.grid(True)
+   
+    st.pyplot(fig)
+ 
+    return data
+ 
+def kmeans_clustering_3d(data, col1, col2, col3, n_clusters):
+    X = data[[col1, col2, col3]]
+    kmeans = KMeans(n_clusters=n_clusters)
+    kmeans.fit(X)
+    centroids = kmeans.cluster_centers_
+    labels = kmeans.labels_
+    data['cluster'] = labels
+ 
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    for cluster in range(n_clusters):
+        cluster_data = data[data['cluster'] == cluster]
+        ax.scatter(cluster_data[col1], cluster_data[col2], cluster_data[col3], label=f'Cluster {cluster + 1}')
+   
+    ax.scatter(centroids[:, 0], centroids[:, 1], centroids[:, 2], marker='x', color='k', label='Centroids')
+   
+    ax.set_xlabel(col1)
+    ax.set_ylabel(col2)
+    ax.set_zlabel(col3)
+    ax.set_title('K-Means Clustering')
+    ax.legend()
+    ax.grid(True)
+    st.pyplot(fig)
+   
+    return centroids, labels
