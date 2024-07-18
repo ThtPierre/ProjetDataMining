@@ -12,6 +12,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, mean_squared_error
 from mpl_toolkits.mplot3d import Axes3D
 
+def detect_delimiter(file):
+    sample = file.read(1024).decode('utf-8')
+    file.seek(0)
+    if sample.count(',') > sample.count(';'):
+        return ','
+    else:
+        return ';'
 
 def clean_mean (data): 
     col_num = data.select_dtypes(include=["float64", "int64"]).columns
