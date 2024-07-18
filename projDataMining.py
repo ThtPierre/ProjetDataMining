@@ -134,7 +134,25 @@ else:
     st.header("Part IV : Clustering or Prediction")
     choice = st.selectbox("What do you want to do?", ["Clustering", "Prediction"])
     if choice == "Clustering":
-        st.write("Clustering Algorithms")
+        # Bouton pour exécuter le clustering
+        st.subheader("2. Data Normalization : ")
+        st.write("Choose the method you want to use to normalize your data :")
+        method3 = st.selectbox(" Please Select", ["Kmeans",
+                                        "DBSCAN"])
+        
+        if method3 == "Kmeans":
+            n_clusters = st.number_input("nombre de cluster:", min_value=2, max_value=20, value=3)
+            col1 = st.selectbox("selectionner l'axe X", numeric_df.columns, key="kmeans x")
+            col2 = st.selectbox("selectionner l'axe Y", numeric_df.columns, key="kmeans y")
+            kmeans_clustering(numeric_df,col1,col2,n_clusters)
+            
+        elif method3 == "DBSCAN":
+            col1 = st.selectbox("selectionner l'axe X", numeric_df.columns, key="kmeans x")
+            col2 = st.selectbox("selectionner l'axe Y", numeric_df.columns, key="kmeans y")
+            eps = st.slider('EPS (epsilon)', min_value=0.1, max_value=1.0, value=0.5, step=0.1)
+            min_samples = st.slider('Min Samples', min_value=2, max_value=20, value=5)
+            dbscan_clustering(numeric_df,col1, col2, eps, min_samples)
+            st.write("Clustering Algorithms")
     else : 
         st.subheader("Prediction Algorithms")
         column_names = data_normalise.columns.tolist()

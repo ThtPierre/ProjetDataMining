@@ -164,3 +164,56 @@ def knn(X,y):
     
     st.write("Number of correct predictions:", correct_predictions)
     st.write("Number of incorrect predictions:", incorrect_predictions)
+
+
+def kmeans_clustering(data, col1, col2, n_clusters):
+    X = data[[col1, col2]]
+    kmeans = KMeans(n_clusters=n_clusters)
+    kmeans.fit(X)
+    centroids = kmeans.cluster_centers_
+    labels = kmeans.labels_
+    data['cluster'] = labels
+    plt.figure(figsize=(10, 8))
+    for cluster in range(n_clusters):
+        cluster_data = data[data['cluster'] == cluster]
+        plt.scatter(cluster_data[col1], cluster_data[col2], label=f'Cluster {cluster + 1}')
+    
+    plt.scatter(centroids[:, 0], centroids[:, 1], marker='x', color='k', label='Centroids')
+    
+    plt.xlabel(col1)
+    plt.ylabel(col2)
+    plt.title('K-Means Clustering')
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+    
+def dbscan_clustering(data, col1, col2, eps, min_samples):
+    
+    X = data[[col1, col2]]
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+    dbscan.fit(X)
+    labels = dbscan.labels_
+    data['cluster'] = labels
+    
+
+    plt.figure(figsize=(10, 8))
+    unique_clusters = np.unique(labels[labels != -1])
+    
+    # Scatter plot pour chaque cluster
+    for cluster in unique_clusters:
+        cluster_data = data[data['cluster'] == cluster]
+        plt.scatter(cluster_data[col1], cluster_data[col2], label=f'Cluster {cluster}')
+    
+    # Marquer le bruit (cluster avec étiquette -1)
+    noise_data = data[data['cluster'] == -1]
+    plt.scatter(noise_data[col1], noise_data[col2], color='gray', marker='x', label='Noise')
+    
+    # Ajouter des légendes et un titre
+    plt.xlabel(col1)
+    plt.ylabel(col2)
+    plt.title('DBSCAN Clustering')
+    plt.legend()
+    plt.grid(True)
+    
+    # Afficher le plot dans Streamlit
+    st.pyplot(plt)
