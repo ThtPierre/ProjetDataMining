@@ -6,8 +6,11 @@ import seaborn as sns
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.cluster import KMeans, DBSCAN
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, mean_squared_error
 from mpl_toolkits.mplot3d import Axes3D
@@ -118,15 +121,49 @@ else:
     selected_column = st.selectbox("Veuillez sélectionner une colonne", column_names)
     vrai=st.checkbox("Normalized data", value=True)
     if vrai:
-        st.write("Histograme parameters:")
+        st.write("Histograme of your parameter:")
         histograme(numeric_df,selected_column)
-        st.write("Histograme parameters:")
+        st.write("Boxplot of your parameter:")
         boxplot(numeric_df,selected_column)
     else:
-        st.write("Histograme parameters:")
+        st.write("Histograme of your parameter:")
         histograme(data_propre,selected_column)
-        st.write("Histograme parameters:")
+        st.write("Boxplot of your parameter:")
         boxplot(data_propre,selected_column)
+    
+    st.header("Part IV : Clustering or Prediction")
+    choice = st.selectbox("What do you want to do?", ["Clustering", "Prediction"])
+    if choice == "Clustering":
+        st.write("Clustering Algorithms")
+    else : 
+        st.subheader("Prediction Algorithms")
+        column_names = data_normalise.columns.tolist()
+        target_column = st.selectbox("Select the target column", column_names)
 
+        algo_type = st.selectbox("Choose the type of prediction", ["Regression", "Classification"])
 
+        if algo_type == "Regression":
+            X = numeric_df.drop(columns=[target_column])
+            y = numeric_df[target_column]
+            algo_choice = st.selectbox("Choose the algorithm", ["Linear Regression", "Random Forest Regressor"])
+            selected_columns = st.multiselect("Select the columns you want to use as features", column_names)
+            X = numeric_df[selected_columns]
+            if algo_choice == "Linear Regression":
+                lineareg(X, y)
+
+            elif algo_choice == "Random Forest Regressor":
+                forestreg(X, y)
         
+        elif algo_type == "Classification":
+            X = data_normalise.drop(columns=[target_column])
+            y = data_normalise[target_column]
+            algo_choice = st.selectbox("Choose the algorithm", ["Logistic Regression", "Random Forest Classifier", "K-Nearest Neighbors"])
+
+            if algo_choice == "Logistic Regression":
+                logisticreg(X, y)
+
+            elif algo_choice == "Random Forest Classifier":
+                forest(X, y)
+
+            elif algo_choice == "K-Nearest Neighbors":
+                knn(X, y)
