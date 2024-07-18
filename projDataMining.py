@@ -89,3 +89,23 @@ else:
     st.write("Cleaned data : ")
     st.write(data_propre.head(3))
     st.write(data_propre.tail(3))
+
+    st.subheader("2. Data Normalization : ")
+    st.write("Choose the method you want to use to normalize your data :")
+    method2 = st.selectbox(" Please Select", ["No Normalization",
+                                     "1/ Min-Max Normalization",
+                                     "2/ Z-Score Normalization",
+                                     "3/ Robust Normalization"])
+    
+    if method2 == "No Normalization":
+        data_normalise = data_propre
+    elif method2 == "1/ Min-Max Normalization":
+        data_normalise = normalisation_minmax(data_propre)
+    elif method2 == "2/ Z-Score Normalization":
+        data_normalise = normalisation_Zscore(data_propre)
+    elif method2 == "3/ Robust Normalization":
+        data_normalise = normalisation_robust(data_propre)
+    
+    st.write("Normalized data : ")
+    st.write(data_normalise.head(3))
+    st.write(data_normalise.tail(3))
