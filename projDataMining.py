@@ -109,3 +109,24 @@ else:
     st.write("Normalized data : ")
     st.write(data_normalise.head(3))
     st.write(data_normalise.tail(3))
+
+
+    st.header("Part II: data pre-processing and cleaning:")
+    st.subheader("1. Data cleaning : ")
+    numeric_df = data_normalise.select_dtypes(include=["float64", "int64"])
+    column_names = numeric_df.columns.tolist()
+    selected_column = st.selectbox("Veuillez sélectionner une colonne", column_names)
+    vrai=st.checkbox("Normalized data", value=True)
+    if vrai:
+        st.write("Histograme parameters:")
+        histograme(numeric_df,selected_column)
+        st.write("Histograme parameters:")
+        boxplot(numeric_df,selected_column)
+    else:
+        st.write("Histograme parameters:")
+        histograme(data_propre,selected_column)
+        st.write("Histograme parameters:")
+        boxplot(data_propre,selected_column)
+
+
+        

@@ -54,3 +54,23 @@ def normalisation_robust(data):
     data_normalise = data.copy()
     data_normalise[col_num] = scaler.fit_transform(data[col_num])
     return data_normalise
+
+def histograme(data,feature):
+    
+    plt.figure(figsize=(10, 6))
+    sns.histplot(data[feature], kde=True, bins=25, color='blue', edgecolor='black')
+    plt.title(f'Distribution of {feature}', fontsize=15)
+    plt.xlabel(feature, fontsize=12)
+    plt.ylabel('Frequency', fontsize=12)
+    plt.grid(True)
+    st.pyplot(plt)
+
+def boxplot(data,column):
+
+    plt.figure(figsize=(12, 8))
+    sns.boxplot(y=data[column])  
+    plt.title(f'Box plot of {column}')  
+    plt.ylabel(column)  
+    plt.tight_layout()  
+
+    st.pyplot(plt)  
