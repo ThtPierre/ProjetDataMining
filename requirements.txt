@@ -1,0 +1,16 @@
+streamlit
+pandas
+numpy
+matplotlib.pyplot
+seaborn
+sklearn.impute
+sklearn.preprocessing
+sklearn.cluster
+sklearn.linear_model
+sklearn.ensemble
+sklearn.neighbors
+sklearn.model_selection
+sklearn.metrics
+sklearn.model_selection
+sklearn.metrics
+mpl_toolkits.mplot3d
