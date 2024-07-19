@@ -3,10 +3,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.impute import SimpleImputer, KNNImputer
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
@@ -133,6 +134,15 @@ def logisticreg(X, y):
     incorrect_predictions = len(y_test) - correct_predictions
     st.write("Number of correct predictions:", correct_predictions)
     st.write("Number of incorrect predictions:", incorrect_predictions)
+    cm = confusion_matrix(y_test, y_pred)
+ 
+    st.subheader('Confusion Matrix')
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.title('Confusion Matrix')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    st.pyplot(plt)
 
 def forest(X,y): 
     n_estimators = st.slider("Number of trees", 10, 100, 50)
@@ -148,6 +158,15 @@ def forest(X,y):
     
     st.write("Number of correct predictions:", correct_predictions)
     st.write("Number of incorrect predictions:", incorrect_predictions)
+    cm = confusion_matrix(y_test, y_pred)
+ 
+    st.subheader('Confusion Matrix')
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.title('Confusion Matrix')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    st.pyplot(plt)
 
 def knn(X,y):
     k = st.slider("Number of neighbors (K)", 1, 20, 5)
@@ -164,7 +183,15 @@ def knn(X,y):
     
     st.write("Number of correct predictions:", correct_predictions)
     st.write("Number of incorrect predictions:", incorrect_predictions)
-
+    cm = confusion_matrix(y_test, y_pred)
+ 
+    st.subheader('Confusion Matrix')
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.title('Confusion Matrix')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    st.pyplot(plt)
 
 def kmeans_clustering(data, col1, col2, n_clusters):
     X = data[[col1, col2]]
@@ -186,7 +213,8 @@ def kmeans_clustering(data, col1, col2, n_clusters):
     plt.legend()
     plt.grid(True)
     st.pyplot(plt)
-    
+    return centroids
+
 def dbscan_clustering(data, col1, col2, eps, min_samples):
     
     X = data[[col1, col2]]
@@ -212,11 +240,11 @@ def dbscan_clustering(data, col1, col2, eps, min_samples):
     plt.legend()
     plt.grid(True)
     
-    t.pyplot(plt)
+    st.pyplot(plt)
 
-    def calculate_kmeans_stats(data, centroids):
-        cluster_stats = pd.DataFrame(columns=['Cluster', 'Number of Points', 'Center'])
-        unique_clusters = np.unique(data['cluster'])
+def calculate_kmeans_stats(data, centroids):
+    cluster_stats = pd.DataFrame(columns=['Cluster', 'Number of Points', 'Center'])
+    unique_clusters = np.unique(data['cluster'])
    
     for cluster in unique_clusters:
         cluster_data = data[data['cluster'] == cluster]

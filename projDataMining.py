@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
@@ -16,23 +16,20 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 from mpl_toolkits.mplot3d import Axes3D
 from fonction import *
 
-
-def detect_delimiter(file):
-    sample = file.read(1024).decode('utf-8')
-    file.seek(0)
-    if sample.count(',') > sample.count(';'):
-        return ','
-    else:
-        return ';'
-
 st.title("Projet Data Mining")
 
 with st.sidebar:
     st.title("Pierre TAITHE, Benjamin ROUSSEAU, Madjid ZEHANI")
     st.header("Data Mining 2024")
+    st.title ("DataMining Project")
+    st.write("[Part I: Initial Data Exploration](#part-i-initial-data-exploration)")
+    st.write("[Part II: Data Pre-processing and Cleaning](#part-ii-data-pre-processing-and-cleaning)")
+    st.write("[Part III: Data Visualization](#part-iii-data-visualization)")
+    st.write("[Part IV: Clustering or Prediction](#part-iv-clustering-or-prediction)")
+
 
 st.header("Part I: Initial Data Exploration")
-uploaded_file = st.file_uploader("Choose a file", type="csv")
+uploaded_file = st.file_uploader("Choose a file",)
 if uploaded_file is None:
     st.write("Please add a CSV File")
 else:
@@ -47,6 +44,9 @@ else:
     st.write("Number of lines : ", data.shape[0])
     st.write("Number of columns : ", data.shape[1])
     missing_percentage = data.isnull().mean().round(4) * 100
+    data['Time (months)'] = data['Time (months)'].str.strip()
+    data['Time (months)'] = data['Time (months)'].replace('', '0')
+    data['Time (months)'] = data['Time (months)'].fillna(0).astype(np.int64)
 
     data_types = data.dtypes
     df_info = pd.DataFrame({
@@ -56,7 +56,7 @@ else:
     st.write("Name of columns, their type and % of missing data:")
     st.write(df_info)
     
-    st.header("Part II: data pre-processing and cleaning:")
+    st.header("Part II: Data pre-processing and cleaning:")
     st.subheader("1. Data cleaning : ")
     st.write("Choose the method you want to use to clean your data :")
     method = st.selectbox(" Please Select", ["No Cleaning",
@@ -115,19 +115,19 @@ else:
     st.write(data_normalise.tail(3))
 
 
-    st.header("Part II: data pre-processing and cleaning:")
-    st.subheader("1. Data cleaning : ")
+    st.header("Part III: Data Vizualisation")
+    st.subheader("Histograms and Boxplots")
     numeric_df = data_normalise.select_dtypes(include=["float64", "int64"])
     column_names = numeric_df.columns.tolist()
     selected_column = st.selectbox("Veuillez sélectionner une colonne", column_names)
     vrai=st.checkbox("Normalized data", value=True)
     if vrai:
-        st.write("Histograme of your parameter:")
+        st.write("Histogram of your parameter:")
         histograme(numeric_df,selected_column)
         st.write("Boxplot of your parameter:")
         boxplot(numeric_df,selected_column)
     else:
-        st.write("Histograme of your parameter:")
+        st.write("Histogram of your parameter:")
         histograme(data_propre,selected_column)
         st.write("Boxplot of your parameter:")
         boxplot(data_propre,selected_column)
@@ -136,8 +136,6 @@ else:
     choice = st.selectbox("What do you want to do?", ["Clustering", "Prediction"])
     if choice == "Clustering":
         # Bouton pour exécuter le clustering
-        st.subheader("2. Data Normalization : ")
-        st.write("Choose the method you want to use to normalize your data :")
         method3 = st.selectbox(" Please Select", ["Kmeans",
                                         "DBSCAN"])
         
@@ -145,7 +143,8 @@ else:
             n_clusters = st.number_input("nombre de cluster:", min_value=2, max_value=20, value=3)
             col1 = st.selectbox("selectionner l'axe X", numeric_df.columns, key="kmeans x")
             col2 = st.selectbox("selectionner l'axe Y", numeric_df.columns, key="kmeans y")
-            kmeans_clustering(numeric_df,col1,col2,n_clusters)
+            centroids = kmeans_clustering(numeric_df,col1,col2,n_clusters)
+            calculate_kmeans_stats(numeric_df, centroids)
             
         elif method3 == "DBSCAN":
             col1 = st.selectbox("selectionner l'axe X", numeric_df.columns, key="kmeans x")
@@ -154,6 +153,7 @@ else:
             min_samples = st.slider('Min Samples', min_value=2, max_value=20, value=5)
             dbscan_clustering(numeric_df,col1, col2, eps, min_samples)
             st.write("Clustering Algorithms")
+            calculate_dbscan_stats(numeric_df, col1, col2)
     else : 
         st.subheader("Prediction Algorithms")
         column_names = data_normalise.columns.tolist()
@@ -174,8 +174,15 @@ else:
                 forestreg(X, y)
         
         elif algo_type == "Classification":
-            X = data_normalise.drop(columns=[target_column])
+            X = numeric_df.drop(columns=[target_column])
             y = data_normalise[target_column]
+            correlation_matrix = numeric_df.corr()
+            st.write("Correlation Matrix")
+            st.write(correlation_matrix)
+            selected_columns = st.multiselect("Select the columns you want to use as features", column_names)
+            X = numeric_df[selected_columns]
+            correlation_matrix = numeric_df.corr()
+            st.write("Correlation Matrix")
             algo_choice = st.selectbox("Choose the algorithm", ["Logistic Regression", "Random Forest Classifier", "K-Nearest Neighbors"])
 
             if algo_choice == "Logistic Regression":
@@ -186,7 +193,7 @@ else:
             elif algo_choice == "K-Nearest Neighbors":
                 knn(X, y)
 
-
+    st.title("Part V: ")
     st.write("Choose the method between Kmeans 3D and DBSCAN 3D :")
     method4 = st.selectbox("Please Select", ["Kmeans3D", "DBSCAN3D"], key="method4")
  
