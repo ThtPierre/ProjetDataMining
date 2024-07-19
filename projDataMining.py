@@ -170,7 +170,7 @@ else:
                 forestreg(X, y)
         
         elif algo_type == "Classification":
-            X = numeric_df.drop(columns=[target_column])
+            X = numeric_df
             y = data_normalise[target_column]
             correlation_matrix = numeric_df.corr()
             st.write("Correlation Matrix")
