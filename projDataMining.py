@@ -44,9 +44,7 @@ else:
     st.write("Number of lines : ", data.shape[0])
     st.write("Number of columns : ", data.shape[1])
     missing_percentage = data.isnull().mean().round(4) * 100
-    data['Time (months)'] = data['Time (months)'].str.strip()
-    data['Time (months)'] = data['Time (months)'].replace('', '0')
-    data['Time (months)'] = data['Time (months)'].fillna(0).astype(np.int64)
+
 
     data_types = data.dtypes
     df_info = pd.DataFrame({
