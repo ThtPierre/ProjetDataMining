@@ -158,7 +158,7 @@ else:
         algo_type = st.selectbox("Choose the type of prediction", ["Regression", "Classification"])
 
         if algo_type == "Regression":
-            X = numeric_df.drop(columns=[target_column])
+            X = numeric_df
             y = numeric_df[target_column]
             algo_choice = st.selectbox("Choose the algorithm", ["Linear Regression", "Random Forest Regressor"])
             selected_columns = st.multiselect("Select the columns you want to use as features", column_names)
