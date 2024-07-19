@@ -44,8 +44,6 @@ else:
     st.write("Number of lines : ", data.shape[0])
     st.write("Number of columns : ", data.shape[1])
     missing_percentage = data.isnull().mean().round(4) * 100
-
-
     data_types = data.dtypes
     df_info = pd.DataFrame({
         "Data types": data_types,
